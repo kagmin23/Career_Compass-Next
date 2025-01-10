@@ -1,5 +1,5 @@
 import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
-import { DoTest, HomePage, Jobs, LoginForm, RegisterForm, SavedTests } from '../pages';
+import { HomePage, Jobs, LoginForm, QuizTesting, RegisterForm, SavedTests, StudentAssessment } from '../pages';
 import AdminManager from '../pages/admin';
 
 const AppRouter = () => {
@@ -11,8 +11,9 @@ const AppRouter = () => {
         <Route path='/register' element={<RegisterForm />} />
         <Route path='/user/homepage' element={<HomePage />} />
         <Route path='/user/list-jobs' element={<Jobs />} />
-        <Route path='/user/do-test' element={<DoTest />} />
+        <Route path='/user/do-test' element={<StudentAssessment />} />
         <Route path='/user/saved-tests' element={<SavedTests />} />
+        <Route path='/user/do-test/quiz-testing/:id' element={<QuizTesting />} />
         <Route path='/admin/*' element={<AdminManager />} />
       </Routes>
     </Router>

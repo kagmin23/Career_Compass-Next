@@ -1,14 +1,14 @@
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import {
-    Button,
-    Form,
-    Input,
-    Modal,
-    Popconfirm,
-    Space,
-    Table,
-    Typography,
-    message,
+  Button,
+  Form,
+  Input,
+  Modal,
+  Popconfirm,
+  Space,
+  Table,
+  Typography,
+  message,
 } from "antd";
 import React, { useEffect, useState } from "react";
 
@@ -33,46 +33,12 @@ const QuestionSets: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingSet, setEditingSet] = useState<QuestionSet | null>(null);
   const [questionSets, setQuestionSets] = useState<QuestionSet[]>([]);
-  const [selectedQuestions, setSelectedQuestions] = useState<Question[] | null>(
-    null
-  );
+  const [selectedQuestions, setSelectedQuestions] = useState<Question[] | null>(null);
 
   useEffect(() => {
     const storedQuestionSets = sessionStorage.getItem("questionSets");
     if (storedQuestionSets) {
       setQuestionSets(JSON.parse(storedQuestionSets));
-    } else {
-      // Example data for testing
-      const exampleData: QuestionSet[] = [
-        {
-          id: "1736351570089",
-          name: "d",
-          description: "d",
-          totalQuestions: 2,
-          questions: [
-            {
-              id: "1736348178964",
-              content: "Câu hỏi 1",
-              answers: [
-                { id: "0", content: "Đồng ý" },
-                { id: "1", content: "Không đồng ý" },
-                { id: "2", content: "Phân vân" },
-              ],
-            },
-            {
-              id: "1736348647257",
-              content: "Câu hỏi 3",
-              answers: [
-                { id: "0", content: "Yêu thích" },
-                { id: "1", content: "Bình thường" },
-                { id: "2", content: "Ghét" },
-              ],
-            },
-          ],
-        },
-      ];
-      sessionStorage.setItem("questionSets", JSON.stringify(exampleData));
-      setQuestionSets(exampleData);
     }
   }, []);
 
@@ -111,11 +77,7 @@ const QuestionSets: React.FC = () => {
       dataIndex: "name",
       key: "name",
       render: (text: string, record: QuestionSet) => (
-        <a
-          onClick={() => {
-            setSelectedQuestions(record.questions); // Set selected questions when the name is clicked
-          }}
-        >
+        <a onClick={() => setSelectedQuestions(record.questions)}>
           {text}
         </a>
       ),
@@ -179,7 +141,6 @@ const QuestionSets: React.FC = () => {
         }}
       >
         <li style={{ fontSize: 17 }}>Danh sách bộ câu hỏi</li>
-
         <p style={{ marginBottom: 10, fontStyle: "italic" }}>
           Tổng số Bộ câu hỏi: {questionSets.length}
         </p>
@@ -203,18 +164,14 @@ const QuestionSets: React.FC = () => {
           <Form.Item
             name="name"
             label="Tên bộ câu hỏi"
-            rules={[
-              { required: true, message: "Vui lòng nhập tên bộ câu hỏi!" },
-            ]}
+            rules={[{ required: true, message: "Vui lòng nhập tên bộ câu hỏi!" }]}
           >
             <Input placeholder="Nhập tên bộ câu hỏi" />
           </Form.Item>
           <Form.Item
             name="description"
             label="Mô tả"
-            rules={[
-              { required: true, message: "Vui lòng nhập mô tả bộ câu hỏi!" },
-            ]}
+            rules={[{ required: true, message: "Vui lòng nhập mô tả bộ câu hỏi!" }]}
           >
             <Input.TextArea placeholder="Nhập mô tả bộ câu hỏi" />
           </Form.Item>
