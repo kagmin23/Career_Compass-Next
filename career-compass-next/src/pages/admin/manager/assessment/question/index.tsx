@@ -336,6 +336,14 @@ const AdminQuestions: React.FC = () => {
         okText="Tạo"
         cancelText="Hủy"
       >
+        <div
+          style={{
+            marginTop: 15,
+            textAlign: "end",
+          }}
+        >
+          Số câu hỏi ({selectedQuestions.length})
+        </div>
         <Form form={setNameForm} layout="vertical">
           <Form.Item
             name="setName"
