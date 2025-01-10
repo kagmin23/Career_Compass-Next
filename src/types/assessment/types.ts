@@ -29,6 +29,3 @@ export interface Question {
 //     question: string;
 //     options: string[];
 //   }
-  
-  type QuestionsList = Question[];
-  
