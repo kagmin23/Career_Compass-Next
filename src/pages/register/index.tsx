@@ -12,9 +12,7 @@ const RegisterForm: React.FC = () => {
   const onFinish = async (values: Register) => {
     try {
       setLoading(true);
-      
-      console.log("Register values:", values);
-      
+            
       setTimeout(() => {
         const mockNewUser = {
           email: values.email,
@@ -32,7 +30,7 @@ const RegisterForm: React.FC = () => {
             // Verify that parsed data is an array
             users = Array.isArray(parsed) ? parsed : [];
           } catch (error) {
-            console.error("Error parsing users from sessionStorage:", error);
+            console.error("Đăng ký không thành công", error);
             // If parsing fails, start with empty array
             users = [];
           }

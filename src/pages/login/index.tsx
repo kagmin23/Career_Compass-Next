@@ -13,14 +13,12 @@ const LoginForm: React.FC = () => {
     try {
       setLoading(true); // Bắt đầu loading
 
-      console.log("Login values:", values);
-
       // Lấy dữ liệu người dùng từ sessionStorage
       const storedUsers = JSON.parse(sessionStorage.getItem("users") || "[]");
 
       // Kiểm tra nếu có dữ liệu người dùng trong sessionStorage
       if (storedUsers.length === 0) {
-        message.error("Không có người dùng nào được lưu trữ trong sessionStorage.");
+        message.error("Bạn chưa có tài khoản. Vui lòng đăng ký!");
         setLoading(false);
         return;
       }
