@@ -21,7 +21,7 @@ const Header: React.FC = () => {
         position: 'fixed',
         top: 0,
         zIndex: 50,
-        width: '100%',
+        width: '98.9%',
         backgroundColor: 'white',
         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
       }}
