@@ -10,6 +10,7 @@ import {
   Typography,
   message,
 } from "antd";
+import { ColumnsType } from "antd/es/table";
 import React, { useEffect, useState } from "react";
 
 const { Text } = Typography;
@@ -71,7 +72,7 @@ const QuestionSets: React.FC = () => {
     message.success("Xóa bộ câu hỏi thành công!");
   };
 
-  const columns = [
+  const columns: ColumnsType<QuestionSet> = [
     {
       title: "Tên bộ câu hỏi",
       dataIndex: "name",
@@ -92,14 +93,14 @@ const QuestionSets: React.FC = () => {
       dataIndex: "totalQuestions",
       key: "totalQuestions",
       width: 150,
-      align: "center" as const,
+      align: "center",
     },
     {
       title: "Thao tác",
       key: "actions",
       width: 100,
-      align: "center" as const,
-      render: (_: any, record: QuestionSet) => (
+      align: "center",
+      render: (_: unknown, record: QuestionSet) => (
         <Space>
           <Button
             type="link"
@@ -129,7 +130,7 @@ const QuestionSets: React.FC = () => {
       ),
     },
   ];
-
+  
   return (
     <div>
       <div

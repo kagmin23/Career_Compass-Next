@@ -47,8 +47,9 @@ const LoginForm: React.FC = () => {
         setLoading(false); // Kết thúc loading
       }, 2000); // Giả lập quá trình đăng nhập mất 2 giây
     } catch (error) {
+      console.error("Login error:", error);
       message.error("Đăng nhập thất bại. Vui lòng thử lại!");
-      setLoading(false); // Đảm bảo kết thúc loading nếu có lỗi
+      setLoading(false);
     }
   };
 
@@ -103,14 +104,22 @@ const LoginForm: React.FC = () => {
         >
           <div style={{ padding: 50 }}>
             <div style={{ textAlign: "center", marginBottom: "20px" }}>
-              <h2 style={{ fontSize: "50px", fontWeight: "bold", color: "#333" }}>
+              <h2
+                style={{ fontSize: "50px", fontWeight: "bold", color: "#333" }}
+              >
                 ĐĂNG NHẬP
               </h2>
               <p style={{ marginTop: "10px", color: "#666" }}>
                 Chào mừng đến với hệ thống định hướng nghề nghiệp!
               </p>
             </div>
-            <Form form={form} name="login" onFinish={onFinish} layout="vertical" size="large">
+            <Form
+              form={form}
+              name="login"
+              onFinish={onFinish}
+              layout="vertical"
+              size="large"
+            >
               <Form.Item
                 name="email"
                 rules={[
@@ -118,7 +127,15 @@ const LoginForm: React.FC = () => {
                   { type: "email", message: "Email không hợp lệ!" },
                 ]}
               >
-                <Input prefix={<UserOutlined />} placeholder="Email" style={{ borderRadius: "5px", height: "40px", fontSize: "14px" }} />
+                <Input
+                  prefix={<UserOutlined />}
+                  placeholder="Email"
+                  style={{
+                    borderRadius: "5px",
+                    height: "40px",
+                    fontSize: "14px",
+                  }}
+                />
               </Form.Item>
 
               <Form.Item
@@ -128,12 +145,25 @@ const LoginForm: React.FC = () => {
                 <Input.Password
                   prefix={<LockOutlined />}
                   placeholder="Mật khẩu"
-                  style={{ borderRadius: "5px", height: "40px", fontSize: "14px" }}
+                  style={{
+                    borderRadius: "5px",
+                    height: "40px",
+                    fontSize: "14px",
+                  }}
                 />
               </Form.Item>
 
               <Form.Item>
-                <Button type="primary" htmlType="submit" style={{ width: "100%", height: "40px", fontSize: "16px", borderRadius: "5px" }}>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  style={{
+                    width: "100%",
+                    height: "40px",
+                    fontSize: "16px",
+                    borderRadius: "5px",
+                  }}
+                >
                   Đăng nhập
                 </Button>
               </Form.Item>
@@ -141,18 +171,27 @@ const LoginForm: React.FC = () => {
               <div style={{ textAlign: "center", marginTop: "20px" }}>
                 <p style={{ color: "#666", fontSize: "14px" }}>
                   Bằng cách đăng nhập, bạn đồng ý với{" "}
-                  <a href="#" style={{ color: "#1890ff", textDecoration: "none" }}>
+                  <a
+                    href="#"
+                    style={{ color: "#1890ff", textDecoration: "none" }}
+                  >
                     Điều khoản sử dụng
                   </a>{" "}
                   và{" "}
-                  <a href="#" style={{ color: "#1890ff", textDecoration: "none" }}>
+                  <a
+                    href="#"
+                    style={{ color: "#1890ff", textDecoration: "none" }}
+                  >
                     Chính sách bảo mật
                   </a>
                   .
                 </p>
                 <span style={{ color: "#666", fontSize: "14px" }}>
                   Bạn chưa có tài khoản?{" "}
-                  <Link to="/register" style={{ color: "#1890ff", textDecoration: "none" }}>
+                  <Link
+                    to="/register"
+                    style={{ color: "#1890ff", textDecoration: "none" }}
+                  >
                     Đăng ký ngay
                   </Link>
                 </span>
@@ -165,7 +204,8 @@ const LoginForm: React.FC = () => {
           style={{
             width: "50%",
             position: "relative",
-            backgroundImage: "url('https://cdn.thansohocchuyensau.com/file/b96ffd9f-de16-4b6a-b52e-a7a64199f518.jpeg')",
+            backgroundImage:
+              "url('https://cdn.thansohocchuyensau.com/file/b96ffd9f-de16-4b6a-b52e-a7a64199f518.jpeg')",
             backgroundSize: "cover",
             backgroundPosition: "center",
             height: "100%",

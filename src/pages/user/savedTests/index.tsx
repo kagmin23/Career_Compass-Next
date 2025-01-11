@@ -48,10 +48,10 @@ const SavedTests: React.FC = () => {
       }));
     }
 
-    const storedUser = sessionStorage.getItem("users");
-    if (storedUser) {
+    // const storedUser = sessionStorage.getItem("users");
+    // if (storedUser) {
       
-    }
+    // }
   }, []);
 
   const columns = [

@@ -89,7 +89,7 @@ const AdminQuestions: React.FC = () => {
   const handleAddEdit = () => {
     form.validateFields().then((values) => {
       const answers: Answer[] = values.answers.map(
-        (answer: any, index: number) => ({
+        (answer: { content: string }, index: number) => ({
           id: String(index),
           content: answer.content,
         })
@@ -140,8 +140,8 @@ const AdminQuestions: React.FC = () => {
       dataIndex: "checkbox",
       key: "checkbox",
       width: 130,
-      align: "center" as "center",
-      render: (_: any, record: Question) => (
+      align: "center" as const,
+      render: (_: unknown, record: Question) => (
         <Checkbox
           checked={selectedQuestions.includes(record.id)}
           onChange={(e) => {
@@ -176,9 +176,9 @@ const AdminQuestions: React.FC = () => {
     {
       title: "Thao tác",
       key: "actions",
-      align: "center" as "center",
+      align: "center" as const,
       width: 100,
-      render: (_: any, record: Question) => (
+      render: (_: unknown, record: Question) => (
         <Space>
           <Button
             type="link"
