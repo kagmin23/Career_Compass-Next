@@ -1,8 +1,9 @@
-import { LogoutOutlined, QuestionCircleOutlined, QuestionOutlined } from '@ant-design/icons';
+import { LogoutOutlined, QuestionCircleOutlined, QuestionOutlined, StockOutlined } from '@ant-design/icons';
 import { Button, Layout, Menu } from 'antd';
 import React from 'react';
 import { Route, Routes, useNavigate } from "react-router-dom";
 import NotFound from "../../components/not-found";
+import AdminAnalysis from './manager/analysis';
 import AdminQuestions from "./manager/assessment/question";
 import QuestionSets from './manager/assessment/questionSets';
 
@@ -48,6 +49,12 @@ const AdminManager: React.FC = () => {
               label: 'Bộ câu hỏi',
               onClick: () => navigate('/admin/manager/assessment/question-sets'),
             },
+            {
+              key: 'analysis',
+              icon: <StockOutlined />,
+              label: 'Đánh giá',
+              onClick: () => navigate('/admin/manager/analysis'),
+            },
           ]}
         />
 
@@ -81,6 +88,7 @@ const AdminManager: React.FC = () => {
           <Routes>
             <Route path="/manager/assessment/question" element={<AdminQuestions />} />
             <Route path="/manager/assessment/question-sets" element={<QuestionSets />} />
+            <Route path="/manager/analysis" element={<AdminAnalysis />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>
