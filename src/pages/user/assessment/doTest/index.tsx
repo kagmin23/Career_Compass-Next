@@ -1,4 +1,4 @@
-import { Button, Input, Modal } from "antd";
+import { Button, Input, message, Modal } from "antd";
 import { Circle } from "rc-progress"; // Đảm bảo bạn đã cài rc-progress
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -81,9 +81,9 @@ const QuizTesting: React.FC = () => {
       okText: "Nộp bài",
       cancelText: "Huỷ",
       onOk: () => {
-        alert(`Đã nộp bài: ${answeredQuestions}/${totalQuestions} câu`);
+        message.success(`Đã nộp bài: ${answeredQuestions}/${totalQuestions} câu`);
         sessionStorage.removeItem("selectedQuestionSet");
-        navigate("/user/do-test");
+        navigate("/user/saved-tests");
       },
       onCancel: () => {
         // Khi người dùng chọn hủy, không làm gì cả

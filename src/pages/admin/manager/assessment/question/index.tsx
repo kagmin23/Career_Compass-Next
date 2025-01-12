@@ -37,6 +37,7 @@ interface QuestionSet {
   description: string;
   questions: Question[];
   totalQuestions: number;
+  time: number;
   tags: string[];
 }
 
@@ -90,7 +91,8 @@ const AdminQuestions: React.FC = () => {
         description: values.setDescription,
         questions: selectedQuestionSet,
         totalQuestions: selectedQuestions.length,
-        tags: values.tags || Array.from(uniqueQuestionTags), // Sử dụng tags được chọn hoặc mặc định từ câu hỏi
+        time: values.time,
+        tags: values.tags || Array.from(uniqueQuestionTags),
       };
       const existingSets: QuestionSet[] = JSON.parse(
         sessionStorage.getItem("questionSets") || "[]"
