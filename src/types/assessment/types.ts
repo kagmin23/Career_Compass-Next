@@ -20,12 +20,28 @@ export interface Question {
   
   export interface TestResult {
     testId: string;
-    answers: Record<string, any>;
+    answers: Record<string, string | number>;
     timestamp: Date;
   }
 
-//   interface Question {
-//     id: string;
-//     question: string;
-//     options: string[];
-//   }
+  export interface Answer {
+    id: string;
+    content: string;
+  }
+  
+  export interface Question {
+    id: string;
+    content: string;
+    answers: Answer[];
+    tags: string[];
+  }
+  
+  export interface QuestionSet {
+    id: string;
+    name: string;
+    description: string;
+    questions: Question[];
+    totalQuestions: number;
+    tags: string[];
+  }
+  

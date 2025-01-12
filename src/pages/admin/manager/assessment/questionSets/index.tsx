@@ -27,6 +27,7 @@ interface QuestionSet {
   description: string;
   totalQuestions: number;
   questions: Question[];
+  tags: string[];
 }
 
 const QuestionSets: React.FC = () => {
@@ -40,6 +41,8 @@ const QuestionSets: React.FC = () => {
     const storedQuestionSets = sessionStorage.getItem("questionSets");
     if (storedQuestionSets) {
       setQuestionSets(JSON.parse(storedQuestionSets));
+      const parsedSets = JSON.parse(storedQuestionSets);
+      console.log('hi',parsedSets);
     }
   }, []);
 

@@ -1,4 +1,4 @@
-import { Button, Card, Modal } from "antd";
+import { Button, Card, Modal, Tag } from "antd";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../../../components/layout/header";
@@ -15,6 +15,7 @@ interface QuestionSet {
   description: string;
   totalQuestions: number;
   questions: Question[];
+  tags: string[];
 }
 
 const QuestionsList: React.FC = () => {
@@ -112,6 +113,13 @@ const QuestionsList: React.FC = () => {
                 </p>
                 <div style={{ fontSize: "14px", color: "#A0AEC0" }}>
                   <p>Số câu hỏi: {set.totalQuestions}</p>
+                </div>
+                <div style={{ marginTop: "8px" }}>
+                  {set.tags?.map((tag, index) => (
+                    <Tag key={index} color="blue">
+                      {tag}
+                    </Tag>
+                  )) || <span>No Tags Available</span>}
                 </div>
               </div>
               <Button
