@@ -2,7 +2,6 @@ import { Button, Input, message, Modal } from "antd";
 import { Circle } from "rc-progress"; // Đảm bảo bạn đã cài rc-progress
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import Header from "../../../../components/layout/header";
 
 interface Question {
   id: string;
@@ -69,12 +68,54 @@ const QuizTesting: React.FC = () => {
     });
   };
 
+  // Lưu dữ liệu khi nộp bài
   const handleSubmit = () => {
     if (!questionSet) return;
-
+  
     const answeredQuestions = Object.keys(userAnswers).length;
     const totalQuestions = questionSet.questions.length;
-
+  
+    const completionTime = 3600 - timeLeft;
+    const hours = Math.floor(completionTime / 3600);
+    const minutes = Math.floor((completionTime % 3600) / 60);
+    const seconds = completionTime % 60;
+    const formattedTime = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+  
+    // Tạo mảng chứa chi tiết câu trả lời của học sinh
+    const questionDetails = questionSet.questions.map(question => {
+      const selectedAnswerId = userAnswers[question.id];
+      const selectedAnswer = question.answers.find(ans => ans.id === selectedAnswerId);
+      
+      return {
+        questionId: question.id,
+        questionContent: question.content,
+        selectedAnswerId: selectedAnswerId || null,
+        selectedAnswerContent: selectedAnswer ? selectedAnswer.content : null,
+        allAnswers: question.answers.map(ans => ({
+          id: ans.id,
+          content: ans.content
+        }))
+      };
+    });
+  
+    const resultData = {
+      answeredQuestions,
+      totalQuestions,
+      userAnswers,
+      timeLeft,
+      questionSetName: questionSet.name,
+      questionSetId: questionSet.id,
+      completionDate: new Date().toISOString(),
+      completionTime: formattedTime,
+      status: "Đang phân tích",
+      questionDetails: questionDetails
+    };
+  
+    // Lưu vào sessionStorage trước khi chuyển bài
+    const resultArray = [resultData];
+    sessionStorage.setItem("quizResult", JSON.stringify(resultArray));
+  
+    // Tiến hành nộp bài và chuyển hướng
     Modal.confirm({
       title: "Xác nhận nộp bài",
       content: `Bạn có chắc muốn nộp bài? Bạn đã làm ${answeredQuestions}/${totalQuestions} câu.`,
@@ -85,12 +126,10 @@ const QuizTesting: React.FC = () => {
         sessionStorage.removeItem("selectedQuestionSet");
         navigate("/user/saved-tests");
       },
-      onCancel: () => {
-        // Khi người dùng chọn hủy, không làm gì cả
-      },
+      onCancel: () => {},
     });
   };
-
+  
   const handleCancel = () => {
     Modal.confirm({
       title: "Xác nhận hủy",
@@ -125,10 +164,9 @@ const QuizTesting: React.FC = () => {
 
   return (
     <div>
-      <Header />
       <p
         style={{
-          marginTop: "5rem",
+          marginTop: "3rem",
           marginLeft: "0.8rem",
           fontStyle: "italic",
         }}
