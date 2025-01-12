@@ -1,5 +1,5 @@
 import { Button, Input, Modal } from "antd";
-import { Circle } from 'rc-progress'; // Đảm bảo bạn đã cài rc-progress
+import { Circle } from "rc-progress"; // Đảm bảo bạn đã cài rc-progress
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Header from "../../../../components/layout/header";
@@ -195,10 +195,12 @@ const QuizTesting: React.FC = () => {
                       e.currentTarget.style.backgroundColor = "#fff";
                     }}
                   >
-                    <div style={{
-                      display: 'flex',
-                      padding: '0.5rem'
-                    }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        padding: "0.5rem",
+                      }}
+                    >
                       <Input
                         type="radio"
                         name={`question-${question.id}`}
@@ -207,7 +209,7 @@ const QuizTesting: React.FC = () => {
                           handleAnswerSelect(question.id, answer.id)
                         }
                         style={{
-                          width: '5%'
+                          width: "5%",
                         }}
                       />
                       <span style={{ fontSize: "1rem" }}>{answer.content}</span>
@@ -220,7 +222,7 @@ const QuizTesting: React.FC = () => {
                 type="link"
                 onClick={() => handleAnswerClear(question.id)}
                 style={{
-                  marginTop: '1rem'
+                  marginTop: "1rem",
                 }}
               >
                 Xoá lựa chọn của bạn
@@ -236,7 +238,7 @@ const QuizTesting: React.FC = () => {
             padding: "1.5rem",
             borderRadius: "8px",
             backgroundColor: "#f9f9f9",
-            maxHeight: '78.4vh', // Giới hạn chiều cao của phần chứa câu hỏi
+            maxHeight: "78.4vh", // Giới hạn chiều cao của phần chứa câu hỏi
           }}
         >
           <h3 style={{ marginBottom: "1rem" }}>{questionSet.name}</h3>
@@ -246,7 +248,7 @@ const QuizTesting: React.FC = () => {
             <p
               style={{
                 color: "#C0C0C0",
-                marginTop: '2rem'
+                marginTop: "2rem",
               }}
             >
               ______________________________________
@@ -256,25 +258,35 @@ const QuizTesting: React.FC = () => {
           <p>Thời gian còn lại: {formatTime(timeLeft)}</p>
 
           {/* Circular Timer */}
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem', position: 'relative' }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginTop: "2rem",
+              position: "relative",
+            }}
+          >
             <Circle
               percent={(timeLeft / 3600) * 100}
               strokeWidth={8}
               trailWidth={8}
               strokeColor="#1890ff"
               trailColor="#d9d9d9"
-              width={120}
-              style={{ margin: '0 auto' }}
+              style={{
+                margin: "0 auto",
+                width: 120,
+                height: 120,
+              }}
             />
             <div
               style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                fontSize: '18px',
-                fontWeight: 'bold',
-                color: '#1890ff'
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                fontSize: "18px",
+                fontWeight: "bold",
+                color: "#1890ff",
               }}
             >
               {formatTime(timeLeft)}
