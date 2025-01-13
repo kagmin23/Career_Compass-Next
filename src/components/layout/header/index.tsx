@@ -4,18 +4,66 @@ import {
   MailOutlined,
   UserSwitchOutlined,
 } from "@ant-design/icons";
-import { Dropdown, List, Menu } from "antd";
-import React from "react";
+import { Badge, Dropdown, List, Menu } from "antd"; // Thêm Badge từ antd
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-const Header: React.FC = () => {
-  // Fake notification data
-  const notifications = [
-    { id: 1, title: "Thông báo 1", description: "Bạn có bài kiểm tra mới." },
-    { id: 2, title: "Thông báo 2", description: "Hạn nộp bài kiểm tra còn 1 ngày." },
-    { id: 3, title: "Thông báo 3", description: "Bạn đã hoàn thành bài kiểm tra." },
-  ];
+interface QuestionDetail {
+  questionId: string;
+  questionContent: string;
+  selectedAnswerId: string | null;
+  selectedAnswerContent: string | null;
+  allAnswers: {
+    id: string;
+    content: string;
+  }[];
+}
 
+interface StudentSubmission {
+  id: string;
+  questionSetName: string;
+  questionSetId: string;
+  completionDate: string;
+  completionTime: string;
+  status: string;
+  answeredQuestions: number;
+  totalQuestions: number;
+  questionDetails: QuestionDetail[];
+  evaluation?: string;
+}
+
+interface StoredQuizData {
+  id: string;
+  questionSetName: string;
+  questionSetId: string;
+}
+
+const Header: React.FC = () => {
+  const [notifications, setNotifications] = useState<StudentSubmission[]>([]);
+
+  useEffect(() => {
+    const quizResult = sessionStorage.getItem("quizResult");
+  
+    if (quizResult) {
+      const quizData = JSON.parse(quizResult) as StoredQuizData[];
+      const formattedNotifications = quizData
+        .map((quiz: StoredQuizData) => ({
+          id: quiz.id,
+          questionSetName: quiz.questionSetName,
+          questionSetId: quiz.questionSetId,
+          completionDate: '',
+          completionTime: '',
+          status: '',  // Lưu ý: Cần đảm bảo có trường status trong dữ liệu quiz
+          answeredQuestions: 0,
+          totalQuestions: 0,
+          questionDetails: []
+        }))
+        // .filter((item) => item.status === "Đã phân tích"); // Lọc theo status
+  
+      setNotifications(formattedNotifications);
+    }
+  }, []);
+  
   const notificationMenu = (
     <div
       style={{
@@ -36,12 +84,14 @@ const Header: React.FC = () => {
               cursor: "pointer",
             }}
           >
-            <Link to='/user/notification/analysis/id'><div>
-              <strong>{item.title}</strong>
-              <div style={{ fontSize: "12px", color: "#888" }}>
-                {item.description}
+            <Link to='/user/saved-tests'>
+              <div style={{ color: '#3B81F6'}}>
+                Bộ câu hỏi: <strong>{item.questionSetName}</strong>
+                <p style={{
+                  fontSize: '10px',
+                  color: 'gray'
+                }}>Bài kiểm tra của bạn đã được ghi nhận đánh giá. <br></br>Theo dõi tại đây!</p>
               </div>
-            </div>
             </Link>
           </List.Item>
         )}
@@ -111,7 +161,7 @@ const Header: React.FC = () => {
             style={{
               fontSize: "1.5rem",
               fontWeight: "bold",
-              color: "#3b82f6", // Blue color
+              color: "#3b82f6",
             }}
           >
             Career Compass
@@ -137,7 +187,6 @@ const Header: React.FC = () => {
             </Menu.Item>
           </Menu>
 
-          {/* Avatar section */}
           <div
             style={{
               position: "relative",
@@ -160,7 +209,9 @@ const Header: React.FC = () => {
                     cursor: "pointer",
                   }}
                 >
-                  <MailOutlined style={{ fontSize: "18px" }} />
+                  <Badge count={notifications.length} size="small">
+                    <MailOutlined style={{ fontSize: "18px" }} />
+                  </Badge>
                 </div>
               </Dropdown>
               <Dropdown overlay={menu} trigger={["hover"]}>

@@ -44,4 +44,3 @@ export interface Question {
     totalQuestions: number;
     tags: string[];
   }
-  

@@ -1,5 +1,5 @@
 import { Button, Input, message, Modal } from "antd";
-import { Circle } from "rc-progress"; // Đảm bảo bạn đã cài rc-progress
+import { Circle } from "rc-progress";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -22,9 +22,10 @@ const QuizTesting: React.FC = () => {
   const navigate = useNavigate();
   const [questionSet, setQuestionSet] = useState<QuestionSet | null>(null);
   const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
-  const [timeLeft, setTimeLeft] = useState<number>(3600); // 60 phút = 3600 giây
+  const [timeLeft, setTimeLeft] = useState<number>(900);
 
   useEffect(() => {
+    // Kiểm tra và lấy dữ liệu bộ câu hỏi
     const storedSet = sessionStorage.getItem("selectedQuestionSet");
     if (storedSet) {
       const parsedSet = JSON.parse(storedSet);
@@ -32,25 +33,52 @@ const QuizTesting: React.FC = () => {
         setQuestionSet(parsedSet);
       } else {
         navigate("/user/do-test");
+        return;
       }
     } else {
       navigate("/user/do-test");
+      return;
+    }
+
+    // Kiểm tra và lấy thời gian còn lại từ sessionStorage
+    const storedTime = sessionStorage.getItem(`quiz_time_${id}`);
+    if (storedTime) {
+      const parsedTime = parseInt(storedTime, 10);
+      // Kiểm tra nếu thời gian hợp lệ và còn dương
+      if (!isNaN(parsedTime) && parsedTime > 0) {
+        setTimeLeft(parsedTime);
+      } else {
+        // Nếu thời gian không hợp lệ hoặc đã hết, tự động nộp bài
+        handleSubmit();
+        return;
+      }
+    } else {
+      // Nếu chưa có thời gian trong storage, khởi tạo với 60 phút
+      sessionStorage.setItem(`quiz_time_${id}`, "900");
     }
 
     // Đặt đồng hồ đếm ngược
     const timer = setInterval(() => {
       setTimeLeft((prevTime) => {
-        if (prevTime <= 0) {
+        const newTime = prevTime - 1;
+        if (newTime <= 0) {
           clearInterval(timer);
           handleSubmit();
           return 0;
         }
-        return prevTime - 1;
+        // Lưu thời gian mới vào sessionStorage
+        sessionStorage.setItem(`quiz_time_${id}`, newTime.toString());
+        return newTime;
       });
     }, 1000);
 
-    // Dọn dẹp interval khi component bị hủy
-    return () => clearInterval(timer);
+    // Dọn dẹp interval và lưu thời gian khi unmount
+    return () => {
+      clearInterval(timer);
+      if (timeLeft > 0) {
+        sessionStorage.setItem(`quiz_time_${id}`, timeLeft.toString());
+      }
+    };
   }, [id, navigate]);
 
   const handleAnswerSelect = (questionId: string, answerId: string) => {
@@ -63,25 +91,26 @@ const QuizTesting: React.FC = () => {
   const handleAnswerClear = (questionId: string) => {
     setUserAnswers((prev) => {
       const newAnswers = { ...prev };
-      delete newAnswers[questionId]; // Xóa câu trả lời của câu hỏi này
+      delete newAnswers[questionId];
       return newAnswers;
     });
   };
 
-  // Lưu dữ liệu khi nộp bài
   const handleSubmit = () => {
     if (!questionSet) return;
+
+    // Xóa thời gian khỏi sessionStorage khi nộp bài
+    sessionStorage.removeItem(`quiz_time_${id}`);
   
     const answeredQuestions = Object.keys(userAnswers).length;
     const totalQuestions = questionSet.questions.length;
   
-    const completionTime = 3600 - timeLeft;
+    const completionTime = 900 - timeLeft;
     const hours = Math.floor(completionTime / 3600);
     const minutes = Math.floor((completionTime % 3600) / 60);
     const seconds = completionTime % 60;
     const formattedTime = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   
-    // Tạo mảng chứa chi tiết câu trả lời của học sinh
     const questionDetails = questionSet.questions.map(question => {
       const selectedAnswerId = userAnswers[question.id];
       const selectedAnswer = question.answers.find(ans => ans.id === selectedAnswerId);
@@ -111,11 +140,9 @@ const QuizTesting: React.FC = () => {
       questionDetails: questionDetails
     };
   
-    // Lưu vào sessionStorage trước khi chuyển bài
     const resultArray = [resultData];
     sessionStorage.setItem("quizResult", JSON.stringify(resultArray));
   
-    // Tiến hành nộp bài và chuyển hướng
     Modal.confirm({
       title: "Xác nhận nộp bài",
       content: `Bạn có chắc muốn nộp bài? Bạn đã làm ${answeredQuestions}/${totalQuestions} câu.`,
@@ -137,21 +164,18 @@ const QuizTesting: React.FC = () => {
       okText: "Thoát",
       cancelText: "Tiếp tục làm bài",
       onOk: () => {
+        sessionStorage.removeItem(`quiz_time_${id}`);
         sessionStorage.removeItem("selectedQuestionSet");
         navigate("/user/do-test");
       },
-      onCancel: () => {
-        // Khi người dùng chọn tiếp tục làm bài, không làm gì cả
-      },
+      onCancel: () => {},
     });
   };
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    return `${String(minutes).padStart(2, "0")}:${String(
-      remainingSeconds
-    ).padStart(2, "0")}`;
+    return `${String(minutes).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}`;
   };
 
   const getAnsweredCount = () => {
@@ -179,15 +203,15 @@ const QuizTesting: React.FC = () => {
           padding: "0 1rem",
           maxWidth: "100%",
           display: "flex",
-          gap: "2rem", // Khoảng cách giữa hai cột
+          gap: "2rem",
         }}
       >
         {/* Cột bên trái chứa các câu hỏi */}
         <div
           style={{
             flex: 1,
-            overflowY: "auto", // Kích hoạt cuộn dọc nếu nội dung vượt quá chiều cao
-            maxHeight: "calc(100vh - 8rem)", // Giới hạn chiều cao của phần chứa câu hỏi
+            overflowY: "auto",
+            maxHeight: "calc(100vh - 8rem)",
           }}
         >
           <h2
@@ -243,9 +267,7 @@ const QuizTesting: React.FC = () => {
                         type="radio"
                         name={`question-${question.id}`}
                         checked={userAnswers[question.id] === answer.id}
-                        onChange={() =>
-                          handleAnswerSelect(question.id, answer.id)
-                        }
+                        onChange={() => handleAnswerSelect(question.id, answer.id)}
                         style={{
                           width: "5%",
                         }}
@@ -269,14 +291,14 @@ const QuizTesting: React.FC = () => {
           ))}
         </div>
 
-        {/* Cột bên phải chứa tên bộ câu hỏi, số lượng câu hỏi và thời gian */}
+        {/* Cột bên phải chứa thông tin bài kiểm tra */}
         <div
           style={{
             flex: 0.3,
             padding: "1.5rem",
             borderRadius: "8px",
             backgroundColor: "#f9f9f9",
-            maxHeight: "78.4vh", // Giới hạn chiều cao của phần chứa câu hỏi
+            maxHeight: "78.4vh",
           }}
         >
           <h3 style={{ marginBottom: "1rem" }}>{questionSet.name}</h3>
@@ -292,10 +314,10 @@ const QuizTesting: React.FC = () => {
               ______________________________________
             </p>
           </p>
-          <p>Thời gian: 60 phút</p>
+          <p>Thời gian: 15 phút</p>
           <p>Thời gian còn lại: {formatTime(timeLeft)}</p>
 
-          {/* Circular Timer */}
+          {/* Đồng hồ đếm ngược dạng tròn */}
           <div
             style={{
               display: "flex",
@@ -305,7 +327,7 @@ const QuizTesting: React.FC = () => {
             }}
           >
             <Circle
-              percent={(timeLeft / 3600) * 100}
+              percent={(timeLeft / 900) * 100}
               strokeWidth={8}
               trailWidth={8}
               strokeColor="#1890ff"

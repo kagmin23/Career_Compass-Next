@@ -1,21 +1,23 @@
-import { Button, Card, Table, Tag } from "antd";
+import { DoubleRightOutlined, FolderViewOutlined } from "@ant-design/icons";
+import { Button, Card, Modal, Table, Tag } from "antd";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Header from "../../../components/layout/header";
 
 interface TestHistory {
   id: string;
-  testName: string;
-  completedDate: string;
+  questionSetName: string;
+  completionDate: string;
   score: number;
   totalQuestions: number;
-  correctAnswers: number;
-  timeSpent: number;
+  answeredQuestions: number;
+  completionTime: number;
   status: "pending" | "done";
+  evaluation?: string; // Thêm trường để lưu đánh giá
 }
 
 interface UserProfile {
-  name: string;
+  questionSetName: string;
   email: string;
   totalTestsTaken: number;
   averageScore: number;
@@ -23,13 +25,15 @@ interface UserProfile {
 
 const SavedTests: React.FC = () => {
   const [userProfile, setUserProfile] = useState<UserProfile>({
-    name: "Người dùng",
-    email: "user@example.com",
+    questionSetName: "Người dùng",
+    email: "@gmail.com",
     totalTestsTaken: 0,
     averageScore: 0,
   });
 
   const [testHistory, setTestHistory] = useState<TestHistory[]>([]);
+  const [selectedTest, setSelectedTest] = useState<TestHistory | null>(null);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   useEffect(() => {
     const storedHistory = sessionStorage.getItem("quizResult");
@@ -43,7 +47,8 @@ const SavedTests: React.FC = () => {
 
           // Tính toán dữ liệu người dùng
           const totalTests = history.length;
-          const avgScore = history.reduce((acc, curr) => acc + curr.score, 0) / totalTests;
+          const avgScore =
+            history.reduce((acc, curr) => acc + curr.score, 0) / totalTests;
 
           setUserProfile((prev) => ({
             ...prev,
@@ -59,6 +64,11 @@ const SavedTests: React.FC = () => {
     }
   }, []);
 
+  const handleViewResult = (test: TestHistory) => {
+    setSelectedTest(test);
+    setIsModalVisible(true);
+  };
+
   const columns = [
     {
       title: "Tên bài kiểm tra",
@@ -69,28 +79,36 @@ const SavedTests: React.FC = () => {
       title: "Ngày hoàn thành",
       dataIndex: "completionDate",
       key: "completionDate",
-      align: 'center' as const,
-      width: 150,
+      align: "center" as const,
+      // width: 150,
       render: (date: string) => new Date(date).toLocaleDateString("vi-VN"),
     },
     {
       title: "Thời gian làm",
       dataIndex: "completionTime",
       key: "completionTime",
-      align: 'center' as const,
-      width: 130,
+      align: "center" as const,
+      // width: 130,
       render: (minutes: number) => `${minutes}`,
     },
     {
-      title: "Kết quả",
+      title: "Trạng thái",
       dataIndex: "status",
       key: "status",
-      align: 'center' as const,
-      width: 200,
-      render: (status: "pending" | "done") => (
-        <Tag color={status === "pending" ? "green" : "red"}>
-          {status === "pending" ? "Đã phân tích" : "Đang phân tích"}
-        </Tag>
+      align: "center" as const,
+      // width: 200,
+      render: (status: "pending" | "done") => <Tag color="blue">{status}</Tag>,
+    },
+    {
+      title: "Xem kết quả",
+      key: "action",
+      align: "center" as const,
+      // width: 130,
+      render: (_: unknown, record: TestHistory) => (
+        <Button
+          icon={<FolderViewOutlined />}
+          onClick={() => handleViewResult(record)}
+        />
       ),
     },
   ];
@@ -128,7 +146,7 @@ const SavedTests: React.FC = () => {
                 color: "#A0AEC0",
               }}
             >
-              {userProfile.name.charAt(0)}
+              {userProfile.questionSetName.charAt(0)}
             </div>
             <div>
               <h1
@@ -138,7 +156,7 @@ const SavedTests: React.FC = () => {
                   fontWeight: "bold",
                 }}
               >
-                {userProfile.name}
+                {userProfile.questionSetName}
               </h1>
               <p style={{ color: "#718096" }}>{userProfile.email}</p>
             </div>
@@ -244,6 +262,48 @@ const SavedTests: React.FC = () => {
             pagination={{ pageSize: 10, showSizeChanger: false }}
           />
         </Card>
+        <Modal
+          title="Chi tiết bài kiểm tra"
+          visible={isModalVisible}
+          onCancel={() => setIsModalVisible(false)}
+          footer={null}
+        >
+          {selectedTest && (
+            <div>
+              <p>
+                <strong>Tên bài kiểm tra:</strong>{" "}
+                {selectedTest.questionSetName}
+              </p>
+              <div style={{ display: 'flex', gap: 20}}>
+                <p>
+                  <strong>Ngày hoàn thành:</strong>{" "}
+                  {new Date(selectedTest.completionDate).toLocaleDateString(
+                    "vi-VN"
+                  )}
+                </p>
+                <p>
+                  <strong>Tổng số câu hỏi:</strong>{" "}
+                  {selectedTest.totalQuestions}
+                </p>
+                <p>
+                  <strong>Số câu đã làm:</strong>{" "}
+                  {selectedTest.answeredQuestions}
+                </p>
+                <p>
+                  <strong>Thời gian làm:</strong> {selectedTest.completionTime}
+                </p>
+              </div>
+              <p>
+                <strong>Trạng thái:</strong> <Tag color="blue">{selectedTest.status}</Tag>
+              </p>
+              <p>
+                <strong>Đánh giá:</strong> {selectedTest.evaluation ? selectedTest.evaluation : "Đang chờ ..."}
+              </p>
+
+              <Link to='/user/list-jobs'><DoubleRightOutlined /> Tham khảo một số danh sách công việc</Link>
+            </div>
+          )}
+        </Modal>
       </div>
     </div>
   );

@@ -1,15 +1,18 @@
 import { BarChartOutlined } from "@ant-design/icons";
 import {
-    Button,
-    Card,
-    List,
-    Modal,
-    Select,
-    Space,
-    Table,
-    Tag,
-    Tooltip,
-    Typography,
+  Button,
+  Card,
+  Form,
+  Input,
+  List,
+  message,
+  Modal,
+  Select,
+  Space,
+  Table,
+  Tag,
+  Tooltip,
+  Typography,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import React, { useEffect, useState } from "react";
@@ -38,14 +41,19 @@ interface StudentSubmission {
   answeredQuestions: number;
   totalQuestions: number;
   questionDetails: QuestionDetail[];
+  evaluation?: string; // Thêm trường để lưu đánh giá
 }
 
 const AdminAnalysis: React.FC = () => {
   const [selectedQuestionSet, setSelectedQuestionSet] = useState<string>("all");
   const [submissions, setSubmissions] = useState<StudentSubmission[]>([]);
-  const [filteredSubmissions, setFilteredSubmissions] = useState<StudentSubmission[]>([]);
+  const [filteredSubmissions, setFilteredSubmissions] = useState<
+    StudentSubmission[]
+  >([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [selectedSubmission, setSelectedSubmission] = useState<StudentSubmission | null>(null);
+  const [selectedSubmission, setSelectedSubmission] =
+    useState<StudentSubmission | null>(null);
+  const [evaluation, setEvaluation] = useState<string>(""); // State lưu đánh giá
 
   const questionSets = [
     { id: "pending", name: "Đang phân tích" },
@@ -64,9 +72,8 @@ const AdminAnalysis: React.FC = () => {
       key: "answeredQuestions",
       width: 100,
       align: "center",
-      render: (_, record) => (
-        `${record.answeredQuestions}/${record.totalQuestions}`
-      ),
+      render: (_, record) =>
+        `${record.answeredQuestions}/${record.totalQuestions}`,
     },
     {
       title: "Thời gian làm",
@@ -82,9 +89,7 @@ const AdminAnalysis: React.FC = () => {
       width: 100,
       align: "center",
       render: (status) => (
-        <Tag color={status === "Đã phân tích" ? "green" : "red"}>
-          {status}
-        </Tag>
+        <Tag color={status === "Đã phân tích" ? "green" : "red"}>{status}</Tag>
       ),
     },
     {
@@ -107,10 +112,10 @@ const AdminAnalysis: React.FC = () => {
 
   const handleViewDetail = (submission: StudentSubmission) => {
     setSelectedSubmission(submission);
+    setEvaluation(submission.evaluation || ""); // Hiển thị đánh giá đã lưu (nếu có)
     setIsModalVisible(true);
   };
 
-  // Cập nhật hàm xử lý lọc
   const handleQuestionSetChange = (value: string) => {
     setSelectedQuestionSet(value);
     if (value === "all") {
@@ -121,6 +126,33 @@ const AdminAnalysis: React.FC = () => {
         (submission) => submission.status === status
       );
       setFilteredSubmissions(filtered);
+    }
+  };
+
+  const handleComplete = () => {
+    if (selectedSubmission) {
+      const updatedSubmission = {
+        ...selectedSubmission,
+        status: "Đã phân tích",
+        evaluation, // Lưu đánh giá
+      };
+
+      const updatedSubmissions = submissions.map((submission) =>
+        submission.id === selectedSubmission.id
+          ? updatedSubmission
+          : submission
+      );
+
+      setSubmissions(updatedSubmissions);
+      setFilteredSubmissions(updatedSubmissions);
+
+      // Lưu vào sessionStorage
+      sessionStorage.setItem("quizResult", JSON.stringify(updatedSubmissions));
+
+      setIsModalVisible(false);
+      setSelectedSubmission(null);
+      setEvaluation(""); // Reset đánh giá
+      message.success('Đánh giá thành công. Thông báo sẽ được gửi tới người dùng')
     }
   };
 
@@ -173,16 +205,15 @@ const AdminAnalysis: React.FC = () => {
         />
       </Card>
 
-      {/* Modal hiển thị chi tiết bài làm */}
       <Modal
         title="Chi tiết bài làm"
         open={isModalVisible}
         onCancel={() => setIsModalVisible(false)}
         width={800}
         footer={[
-          <Button key="close" onClick={() => setIsModalVisible(false)}>
-            Đóng
-          </Button>
+          <Button type="primary" onClick={handleComplete}>
+            Hoàn thành
+          </Button>,
         ]}
       >
         {selectedSubmission && (
@@ -190,19 +221,29 @@ const AdminAnalysis: React.FC = () => {
             <div style={{ marginBottom: "20px" }}>
               <Title level={4}>{selectedSubmission.questionSetName}</Title>
               <Space direction="vertical">
-                <p>
-                  <strong>Ngày nộp:</strong>{" "}
-                  {new Date(selectedSubmission.completionDate).toLocaleString()}
-                </p>
-                <p>
-                  <strong>Thời gian làm bài:</strong>{" "}
-                  {selectedSubmission.completionTime}
-                </p>
-                <p>
-                  <strong>Số câu đã làm:</strong>{" "}
-                  {`${selectedSubmission.answeredQuestions}/${selectedSubmission.totalQuestions}`}
-                </p>
-                <Tag color={selectedSubmission.status === "Đã phân tích" ? "green" : "red"}>
+                <div style={{ display: "flex", gap: 100 }}>
+                  <p>
+                    <strong>Ngày nộp:</strong>{" "}
+                    {new Date(
+                      selectedSubmission.completionDate
+                    ).toLocaleString()}
+                  </p>
+                  <p>
+                    <strong>Thời gian làm bài:</strong>{" "}
+                    {selectedSubmission.completionTime}
+                  </p>
+                  <p>
+                    <strong>Số câu đã làm:</strong>{" "}
+                    {`${selectedSubmission.answeredQuestions}/${selectedSubmission.totalQuestions}`}
+                  </p>
+                </div>
+                <Tag
+                  color={
+                    selectedSubmission.status === "Đã phân tích"
+                      ? "green"
+                      : "red"
+                  }
+                >
                   {selectedSubmission.status}
                 </Tag>
               </Space>
@@ -212,7 +253,7 @@ const AdminAnalysis: React.FC = () => {
               itemLayout="vertical"
               dataSource={selectedSubmission.questionDetails}
               renderItem={(detail, index) => (
-                <List.Item style={{ borderBottom: '1px solid #f0f0f0' }}>
+                <List.Item style={{ borderBottom: "1px solid #f0f0f0" }}>
                   <div>
                     <p style={{ fontWeight: "bold", marginBottom: "10px" }}>
                       Câu {index + 1}: {detail.questionContent}
@@ -223,11 +264,17 @@ const AdminAnalysis: React.FC = () => {
                           key={answer.id}
                           style={{
                             marginBottom: "5px",
-                            color: detail.selectedAnswerId === answer.id ? '#1890ff' : 'inherit',
-                            fontWeight: detail.selectedAnswerId === answer.id ? 'bold' : 'normal',
+                            color:
+                              detail.selectedAnswerId === answer.id
+                                ? "#1890ff"
+                                : "inherit",
+                            fontWeight:
+                              detail.selectedAnswerId === answer.id
+                                ? "bold"
+                                : "normal",
                           }}
                         >
-                          {detail.selectedAnswerId === answer.id ? '✓ ' : '○ '}
+                          {detail.selectedAnswerId === answer.id ? "✓ " : "○ "}
                           {answer.content}
                         </p>
                       ))}
@@ -238,6 +285,15 @@ const AdminAnalysis: React.FC = () => {
             />
           </div>
         )}
+        <div style={{ marginTop: 10 }}>
+          <Form>
+            <Input.TextArea
+              placeholder="Viết phân tích và đánh giá..."
+              value={evaluation}
+              onChange={(e) => setEvaluation(e.target.value)}
+            />
+          </Form>
+        </div>
       </Modal>
     </div>
   );
