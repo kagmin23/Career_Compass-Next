@@ -16,6 +16,7 @@ import {
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import React, { useEffect, useState } from "react";
+import ReactLinkify from "react-linkify";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -138,9 +139,7 @@ const AdminAnalysis: React.FC = () => {
       };
 
       const updatedSubmissions = submissions.map((submission) =>
-        submission.id === selectedSubmission.id
-          ? updatedSubmission
-          : submission
+        submission.id === selectedSubmission.id ? updatedSubmission : submission
       );
 
       setSubmissions(updatedSubmissions);
@@ -152,7 +151,9 @@ const AdminAnalysis: React.FC = () => {
       setIsModalVisible(false);
       setSelectedSubmission(null);
       setEvaluation(""); // Reset đánh giá
-      message.success('Đánh giá thành công. Thông báo sẽ được gửi tới người dùng')
+      message.success(
+        "Đánh giá thành công. Thông báo sẽ được gửi tới người dùng"
+      );
     }
   };
 
@@ -287,11 +288,18 @@ const AdminAnalysis: React.FC = () => {
         )}
         <div style={{ marginTop: 10 }}>
           <Form>
-            <Input.TextArea
-              placeholder="Viết phân tích và đánh giá..."
-              value={evaluation}
-              onChange={(e) => setEvaluation(e.target.value)}
-            />
+            <ReactLinkify>
+              <Input.TextArea
+                placeholder="Viết phân tích và đánh giá (bao gồm link)..."
+                value={evaluation}
+                onChange={(e) => setEvaluation(e.target.value)}
+                rows={4}
+              />
+            </ReactLinkify>
+            <p style={{ marginTop: 5, color: "#888" }}>
+              Bạn có thể thêm đường link bằng cách nhập URL trực tiếp (VD:
+              https://example.com).
+            </p>
           </Form>
         </div>
       </Modal>

@@ -1,6 +1,8 @@
 import { DoubleRightOutlined, FolderViewOutlined } from "@ant-design/icons";
 import { Button, Card, Modal, Table, Tag } from "antd";
+import Title from "antd/es/typography/Title";
 import React, { useEffect, useState } from "react";
+import ReactLinkify from "react-linkify";
 import { Link } from "react-router-dom";
 import Header from "../../../components/layout/header";
 
@@ -274,7 +276,7 @@ const SavedTests: React.FC = () => {
                 <strong>Tên bài kiểm tra:</strong>{" "}
                 {selectedTest.questionSetName}
               </p>
-              <div style={{ display: 'flex', gap: 20}}>
+              <div style={{ display: "flex", gap: 20 }}>
                 <p>
                   <strong>Ngày hoàn thành:</strong>{" "}
                   {new Date(selectedTest.completionDate).toLocaleDateString(
@@ -294,13 +296,22 @@ const SavedTests: React.FC = () => {
                 </p>
               </div>
               <p>
-                <strong>Trạng thái:</strong> <Tag color="blue">{selectedTest.status}</Tag>
+                <strong>Trạng thái:</strong>{" "}
+                <Tag color="blue">{selectedTest.status}</Tag>
               </p>
-              <p>
-                <strong>Đánh giá:</strong> {selectedTest.evaluation ? selectedTest.evaluation : "Đang chờ ..."}
-              </p>
-
-              <Link to='/user/list-jobs'><DoubleRightOutlined /> Tham khảo một số danh sách công việc</Link>
+              <div style={{ marginTop: 10 }}>
+                <Title level={5}>Đánh giá:</Title>
+                <ReactLinkify>
+                  <p
+                    style={{ whiteSpace: "pre-wrap", wordBreak: "break-word" }}
+                  >
+                    {selectedTest.evaluation || "Chưa có đánh giá."}
+                  </p>
+                </ReactLinkify>
+              </div>
+              <Link to="/user/list-jobs">
+                <DoubleRightOutlined /> Tham khảo một số danh sách công việc
+              </Link>
             </div>
           )}
         </Modal>
