@@ -2,6 +2,7 @@ import { Button, Card, Modal, Tag } from "antd";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../../../components/layout/header";
+import { questionsData } from "../../../../constants/constants";
 
 interface Question {
   id: string;
@@ -22,28 +23,55 @@ const QuestionsList: React.FC = () => {
   const [questionSets, setQuestionSets] = useState<QuestionSet[]>([]);
   const [selectedSet, setSelectedSet] = useState<QuestionSet | null>(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedQuestionSets = sessionStorage.getItem("questionSets");
-    if (storedQuestionSets) {
-      setQuestionSets(JSON.parse(storedQuestionSets));
+    // Lưu data cứng vào sessionStorage khi component mount
+    const savedStaticData = sessionStorage.getItem("questionsData");
+    if (!savedStaticData) {
+      sessionStorage.setItem("questionsData", JSON.stringify(questionsData));
     }
+
+    // Lấy và kết hợp dữ liệu
+    const storedQuestionSets = sessionStorage.getItem("questionSets");
+    const storedStaticData = sessionStorage.getItem("questionsData");
+
+    let sessionQuestionData: QuestionSet[] = [];
+    let staticData: QuestionSet[] = [];
+
+    try {
+      if (storedQuestionSets) {
+        sessionQuestionData = JSON.parse(storedQuestionSets);
+      }
+      if (storedStaticData) {
+        staticData = JSON.parse(storedStaticData);
+      } else {
+        staticData = questionsData;
+      }
+    } catch (error) {
+      console.error("Lỗi khi parse dữ liệu từ sessionStorage:", error);
+    }
+
+    const combinedData = [...staticData, ...sessionQuestionData];
+    setQuestionSets(combinedData);
   }, []);
 
   const handleStartQuiz = (set: QuestionSet) => {
+    // Lưu bộ câu hỏi được chọn vào sessionStorage
+    sessionStorage.setItem("selectedQuestionSet", JSON.stringify(set));
     setSelectedSet(set);
-    setIsModalVisible(true); // Hiển thị modal
+    setIsModalVisible(true);
   };
 
   const handleModalOk = () => {
     if (selectedSet) {
-      sessionStorage.setItem(
-        "selectedQuestionSet",
-        JSON.stringify(selectedSet)
-      );
-      navigate(`/user/do-test/quiz-testing/${selectedSet.id}`); // Điều hướng sang trang mới
+      // Đảm bảo có dữ liệu câu hỏi trước khi chuyển trang
+      const selectedQuestionSet = sessionStorage.getItem("selectedQuestionSet");
+      if (selectedQuestionSet) {
+        navigate(`/user/do-test/quiz-testing/${selectedSet.id}`, {
+          state: { questionSet: selectedSet },
+        });
+      }
     }
     setIsModalVisible(false);
     setSelectedSet(null);
@@ -52,6 +80,7 @@ const QuestionsList: React.FC = () => {
   const handleModalCancel = () => {
     setIsModalVisible(false);
     setSelectedSet(null);
+    sessionStorage.removeItem("selectedQuestionSet");
   };
 
   return (
@@ -114,38 +143,41 @@ const QuestionsList: React.FC = () => {
                 <div style={{ fontSize: "14px", color: "#A0AEC0" }}>
                   <p>Số câu hỏi: {set.totalQuestions}</p>
                 </div>
-                <div style={{ marginTop: "8px" }}>
+                <div style={{ marginTop: "8px", marginBottom: 10 }}>
                   {set.tags?.map((tag, index) => (
                     <Tag key={index} color="blue">
                       {tag}
                     </Tag>
-                  )) || <span>No Tags Available</span>}
+                  ))}
                 </div>
               </div>
-              <Button
+              <div
                 style={{
-                  width: "100%",
-                  marginTop: "16px",
-                  color: "#fff",
-                  backgroundColor: "#3182CE",
-                  borderColor: "#3182CE",
+                  position: "absolute",
+                  bottom: "5px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  width: "80%",
                 }}
-                onMouseOver={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#2B6CB0")
-                }
-                onMouseOut={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#3182CE")
-                }
-                onClick={() => handleStartQuiz(set)}
               >
-                Bắt đầu làm bài
-              </Button>
+                <Button
+                  style={{
+                    width: "100%",
+                    marginTop: "16px",
+                    color: "#fff",
+                    backgroundColor: "#3182CE",
+                    borderColor: "#3182CE",
+                  }}
+                  onClick={() => handleStartQuiz(set)}
+                >
+                  Bắt đầu làm bài
+                </Button>
+              </div>
             </Card>
           ))}
         </div>
       </div>
 
-      {/* Modal */}
       <Modal
         title="Xác nhận làm bài kiểm tra!"
         visible={isModalVisible}
@@ -157,12 +189,7 @@ const QuestionsList: React.FC = () => {
         <p>
           <strong>"{selectedSet?.name}"</strong>
         </p>
-        <p
-          style={{
-            fontStyle: "italic",
-            color: "#C39023",
-          }}
-        >
+        <p style={{ fontStyle: "italic", color: "#C39023" }}>
           Đây là bài kiểm tra kiểm định yêu cầu bản thân phù hợp công việc và
           định hướng.
         </p>
