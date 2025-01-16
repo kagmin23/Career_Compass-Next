@@ -26,13 +26,11 @@ const QuestionsList: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Lưu data cứng vào sessionStorage khi component mount
     const savedStaticData = sessionStorage.getItem("questionsData");
     if (!savedStaticData) {
       sessionStorage.setItem("questionsData", JSON.stringify(questionsData));
     }
 
-    // Lấy và kết hợp dữ liệu
     const storedQuestionSets = sessionStorage.getItem("questionSets");
     const storedStaticData = sessionStorage.getItem("questionsData");
 
@@ -57,7 +55,6 @@ const QuestionsList: React.FC = () => {
   }, []);
 
   const handleStartQuiz = (set: QuestionSet) => {
-    // Lưu bộ câu hỏi được chọn vào sessionStorage
     sessionStorage.setItem("selectedQuestionSet", JSON.stringify(set));
     setSelectedSet(set);
     setIsModalVisible(true);
@@ -65,7 +62,6 @@ const QuestionsList: React.FC = () => {
 
   const handleModalOk = () => {
     if (selectedSet) {
-      // Đảm bảo có dữ liệu câu hỏi trước khi chuyển trang
       const selectedQuestionSet = sessionStorage.getItem("selectedQuestionSet");
       if (selectedQuestionSet) {
         navigate(`/user/do-test/quiz-testing/${selectedSet.id}`, {
@@ -84,19 +80,25 @@ const QuestionsList: React.FC = () => {
   };
 
   return (
-    <div>
+    <div
+      style={{
+        background: "linear-gradient(to bottom, #939af8, #fafafa)",
+        minHeight: "100vh",
+        paddingTop: "6rem",
+        paddingBottom: "4rem",
+      }}
+    >
       <Header />
       <div
         style={{
           maxWidth: "1200px",
           margin: "0 auto",
-          paddingTop: "6rem",
-          paddingBottom: "4rem",
         }}
       >
         <div style={{ marginBottom: "2rem" }}>
           <h1
             style={{
+              color: "white",
               fontSize: "24px",
               fontWeight: "bold",
               marginBottom: "0.5rem",
@@ -104,7 +106,7 @@ const QuestionsList: React.FC = () => {
           >
             Danh sách bài kiểm tra
           </h1>
-          <p style={{ color: "#718096" }}>
+          <p style={{ color: "#40002a" }}>
             Chọn một bài kiểm tra để bắt đầu làm bài
           </p>
         </div>
